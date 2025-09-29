@@ -76,7 +76,7 @@ if exerc == '0':
     print('Nenhum exercício selecionado.')
     input("Pressione Enter para sair...")
     exit()
-tempo = float(input('Digite o tempo de exercício em minutos: '))
+tempo = int(input('Digite o tempo de exercício em minutos: '))
 # METs para os 5 exercícios principais
 met_dict = {
     '1': 10.5, # Corrida (5:35 min/km)
@@ -97,3 +97,5 @@ input("Pressione Enter para sair...")
 #Adiciona mais exercicios
 #Cria uma forma mais facil de transforma em .exe do programa
    #python -m PyInstaller --onefile Projetin.py
+#Verificar como funcina o processo do if else de sexo e se possivel alteralo
+#Não usar algo muito complexo como "def"
