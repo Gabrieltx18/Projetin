@@ -22,6 +22,20 @@ usuario_encontrado = cursor.fetchone()
 if usuario_encontrado:
     
     print("Seja bem vindo",usuario)
+      
+elif not usuario_encontrado :
+    
+    login = input("Deseja criar uma nova conta ? (Sim / Não) ").strip().lower()
+    
+    try:
+        login == "Sim"
+        cmd = "INSERT INTO usuario (nm_usuario, senha) VALUES (%s, %s)"
+        cursor.execute(cmd, (usuario,senha))
+        
+        print("Conta criada com sucesso!")
+        cnn.commit()
+    except:
+        print("Operação cancelada.")
         
 else:
     print("Usuario ou senha incorretos")
