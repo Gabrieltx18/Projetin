@@ -1,22 +1,37 @@
 #App: Sistema de Gerenciamento de Exercícios Físicos e Saúde
 #Conectar ao MySQL
 
-#import mysql.connector
-#conn = mysql.connector.connect(
-#    host="localhost",
-#    user="seu_usuario",
-#    password="sua_senha",
-#    database="seu_banco_de_dados")
+import mysql.connector
 
-#Definir usuario e senha
+cnn = mysql.connector.connect(
+    host="localhost",
+    user="root",
+    password="root",
+    database="teste"
+)
+
 usuario=str(input('Digite seu Nome:'))
 senha=str(input('Digite sua Senha:'))
-print(f'Bem vindo {usuario}, vou precisar de algumas informações\n para calcular sua taxa metabolica basal.')
-#Dados do usuario
+
+query = "Select * from usuario where nm_usuario = %s and senha = %s"
+cursor = cnn.cursor()
+cursor.execute(query, (usuario,senha))
+    
+usuario_encontrado = cursor.fetchone()
+    
+if usuario_encontrado:
+    
+    print("Seja bem vindo",usuario)
+        
+else:
+    print("Usuario ou senha incorretos")
+    exit()
+
+
 altura=int(input('Digite sua altura em Centímetros:'))
 peso=float(input('Digite seu peso em Kg:'))
 idade=float(input('Digite sua idade:'))
-sexo = None
+sexo = None     
 while True:
     sexo = input('Digite seu sexo (M - Masculino | F - Feminino): ').strip().upper()
     if sexo in ['M', 'MASCULINO']:
