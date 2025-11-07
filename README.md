@@ -1,35 +1,28 @@
-# Projetin
-
-
-Script sql
-
 CREATE DATABASE AppFit;
 USE AppFit;
-
 
 CREATE TABLE usuario (
     id_usuario INT AUTO_INCREMENT PRIMARY KEY,
     nm_usuario VARCHAR(100) NOT NULL,
-    senha VARCHAR(255) NOT NULL,	
+    senha VARCHAR(255) NOT NULL,
     altura FLOAT NOT NULL,
     peso DECIMAL(5,2) NOT NULL,
     idade INT NOT NULL,
     sexo ENUM('MASCULINO', 'FEMININO', 'PREFIRO NAO DECLARAR') NOT NULL
 );
 
-
-CREATE TABLE atv_fisica (
-    id_atv INT AUTO_INCREMENT PRIMARY KEY, 
-    nm_atv VARCHAR(100) NOT NULL,
-    tempo INT NOT NULL,
-    id_tipoATV INT,
-    FOREIGN KEY (id_tipoATV) REFERENCES tipos_atv(id_tipoATV) 
-);
-
 CREATE TABLE tipos_atv (
     id_tipoATV INT AUTO_INCREMENT PRIMARY KEY,
     tipo VARCHAR(100) NOT NULL,
-    met FLOAT NOT NULL 
+    met FLOAT NOT NULL
+);
+
+CREATE TABLE atv_fisica (
+    id_atv INT AUTO_INCREMENT PRIMARY KEY,
+    nm_atv VARCHAR(100) NOT NULL,
+    tempo INT NOT NULL,
+    id_tipoATV INT,
+    FOREIGN KEY (id_tipoATV) REFERENCES tipos_atv(id_tipoATV)
 );
 
 CREATE TABLE ficha (
@@ -43,7 +36,6 @@ CREATE TABLE ficha (
     FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario),
     FOREIGN KEY (id_atv) REFERENCES atv_fisica(id_atv)
 );
-
 
 CREATE TABLE historico (
 
