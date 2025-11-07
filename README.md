@@ -1,6 +1,7 @@
 CREATE DATABASE AppFit;
 USE AppFit;
 
+-- Tabela de Usuários (necessária primeiro para referências)
 CREATE TABLE usuario (
     id_usuario INT AUTO_INCREMENT PRIMARY KEY,
     nm_usuario VARCHAR(100) NOT NULL,
@@ -11,12 +12,14 @@ CREATE TABLE usuario (
     sexo ENUM('MASCULINO', 'FEMININO', 'PREFIRO NAO DECLARAR') NOT NULL
 );
 
+-- Tabela de Tipos de Atividade (necessária antes de atv_fisica)
 CREATE TABLE tipos_atv (
     id_tipoATV INT AUTO_INCREMENT PRIMARY KEY,
     tipo VARCHAR(100) NOT NULL,
     met FLOAT NOT NULL
 );
 
+-- Tabela de Atividade Física
 CREATE TABLE atv_fisica (
     id_atv INT AUTO_INCREMENT PRIMARY KEY,
     nm_atv VARCHAR(100) NOT NULL,
@@ -25,6 +28,7 @@ CREATE TABLE atv_fisica (
     FOREIGN KEY (id_tipoATV) REFERENCES tipos_atv(id_tipoATV)
 );
 
+-- Tabela de Ficha de Treino
 CREATE TABLE ficha (
     id_ficha INT AUTO_INCREMENT PRIMARY KEY,
     exercicio VARCHAR(100) NOT NULL,
@@ -37,12 +41,12 @@ CREATE TABLE ficha (
     FOREIGN KEY (id_atv) REFERENCES atv_fisica(id_atv)
 );
 
+-- Tabela de Histórico (adicionada e referenciando ficha e usuario)
 CREATE TABLE historico (
-
     id_historico INT AUTO_INCREMENT PRIMARY KEY,
     dia DATETIME NOT NULL,
     id_ficha INT,
     id_usuario INT,
-    FOREIGN KEY (id_ficha) REFERENCES ficha(id_ficha), -- Referência à tabela ficha
-    FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario) -- Referência à tabela usuario
+    FOREIGN KEY (id_ficha) REFERENCES ficha(id_ficha),
+    FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario)
 );
