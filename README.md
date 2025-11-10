@@ -1,7 +1,6 @@
 CREATE DATABASE AppFit;
 USE AppFit;
 
--- Tabela de Usuários (necessária primeiro para referências)
 CREATE TABLE usuario (
     id_usuario INT AUTO_INCREMENT PRIMARY KEY,
     nm_usuario VARCHAR(100) NOT NULL,
@@ -9,39 +8,30 @@ CREATE TABLE usuario (
     altura FLOAT NOT NULL,
     peso DECIMAL(5,2) NOT NULL,
     idade INT NOT NULL,
-    sexo ENUM('MASCULINO', 'FEMININO', 'PREFIRO NAO DECLARAR') NOT NULL
+    sexo varchar(20)
 );
 
--- Tabela de Tipos de Atividade (necessária antes de atv_fisica)
-CREATE TABLE tipos_atv (
-    id_tipoATV INT AUTO_INCREMENT PRIMARY KEY,
-    tipo VARCHAR(100) NOT NULL,
-    met FLOAT NOT NULL
-);
-
--- Tabela de Atividade Física
-CREATE TABLE atv_fisica (
-    id_atv INT AUTO_INCREMENT PRIMARY KEY,
-    nm_atv VARCHAR(100) NOT NULL,
-    tempo INT NOT NULL,
-    id_tipoATV INT,
-    FOREIGN KEY (id_tipoATV) REFERENCES tipos_atv(id_tipoATV)
-);
-
--- Tabela de Ficha de Treino
 CREATE TABLE ficha (
     id_ficha INT AUTO_INCREMENT PRIMARY KEY,
     exercicio VARCHAR(100) NOT NULL,
-    atv_peso DECIMAL(5,2) NOT NULL,
-    repeticoes INT NOT NULL,
-    id_usuario INT,
-    id_atv INT,
+    atv_peso DECIMAL(5,2),
+    repeticoes INT,
+    tempo date,
     gasto_calorico FLOAT NOT NULL,
-    FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario),
-    FOREIGN KEY (id_atv) REFERENCES atv_fisica(id_atv)
+    id_usuario INT,
+    FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario)
 );
 
--- Tabela de Histórico (adicionada e referenciando ficha e usuario)
+create table atv_cardio(
+
+	cardio_id int auto_increment primary key,
+    tempo_atv time,
+    ritimo_medio time,
+    id_usuario int,
+    foreign key (id_usuario) references usuario (id_usuario)
+    
+);
+
 CREATE TABLE historico (
     id_historico INT AUTO_INCREMENT PRIMARY KEY,
     dia DATETIME NOT NULL,
