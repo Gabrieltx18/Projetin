@@ -4,7 +4,7 @@ import mysql.connector
 cnn = mysql.connector.connect(
     host="localhost",
     user="root",
-    password="root",
+    password="1234",
     database="AppFit"
 )
 cursor = cnn.cursor()
@@ -57,7 +57,7 @@ while True:
     print("1 - Registrar Exercício")
     print("2 - Calcular IMC/TMB/Gasto calórico diário")
     print("3 - Meus últimos exercícios")
-    print("4 - Sair")
+    print("4 - Sair\n")
 
     opcao = input("Escolha uma opção: ").strip()
 
@@ -81,12 +81,35 @@ while True:
         print("1 - Corrida (5:35 min/km)\n2 - Caminhada\n3 - Natação\n4 - Ciclismo\n5 - Musculação")
         exerc = input('Digite o número do exercício: ').strip()
 
-        # Exercícios aeróbicos (cardio)
+        # ========================
+        # EXERCÍCIOS CARDIO
+        # ========================
         if exerc in exercicios and exerc != "5":
             nome_exercicio = exercicios[exerc]
+
             duracao = float(input('Digite a duração do exercício em minutos: '))
             ritimo = input('Digite o ritmo médio (min/km) no formato mm:ss: ').strip()
             intensidade = input('Digite a intensidade (leve, moderada, intensa): ').strip().lower()
+
+            # ---- CONVERTE MINUTOS PARA HH:MM:SS ----
+            min_totais = int(duracao)
+            horas = min_totais // 60
+            minutos_rest = min_totais % 60
+            duracao_formatada = f"{horas:02}:{minutos_rest:02}:00"
+
+            # ---- CONVERTE RITMO mm:ss PARA HH:MM:SS ----
+            try:
+                r_min, r_sec = ritimo.split(":")
+                r_min = int(r_min)
+                r_sec = int(r_sec)
+
+                r_horas = r_min // 60
+                r_min_rest = r_min % 60
+
+                ritimo_formatado = f"{r_horas:02}:{r_min_rest:02}:{r_sec:02}"
+            except:
+                ritimo_formatado = "00:00:00"
+                print("Formato de ritmo inválido. Registrando como 00:00:00")
 
             gasto_calorico = (met_dict[exerc] * peso * duracao) / 60
 
@@ -94,14 +117,16 @@ while True:
             INSERT INTO atv_cardio (nm_exercicio, tempo_atv, ritimo_medio, gasto_calorico, id_usuario)
             VALUES (%s, %s, %s, %s, %s)
             """
-            cursor.execute(cmd, (nome_exercicio, f"00:{int(duracao):02}:00", f"00:{ritimo}", gasto_calorico, id_usuario))
+            cursor.execute(cmd, (nome_exercicio, duracao_formatada, ritimo_formatado, gasto_calorico, id_usuario))
             cnn.commit()
 
             cardio_id = cursor.lastrowid
             registrar_historico('cardio', cardio_id)
             print(f"{nome_exercicio} registrado com sucesso!")
 
-        # Musculação
+        # ========================
+        # MUSCULAÇÃO
+        # ========================
         elif exerc == '5':
             exercicio_nome = input('Digite o nome do exercício: ').strip()
             peso_exerc = float(input('Digite o peso levantado em Kg: '))
@@ -109,13 +134,19 @@ while True:
             series = int(input('Digite o número de séries: '))
             tempo_treino = float(input('Digite o tempo total de treino em minutos: '))
 
+            # ---- CONVERTE TEMPO DE MUSCULAÇÃO ----
+            min_totais = int(tempo_treino)
+            horas = min_totais // 60
+            minutos_rest = min_totais % 60
+            tempo_formatado = f"{horas:02}:{minutos_rest:02}:00"
+
             gasto_calorico = met_dict['5'] * peso * (tempo_treino / 60)
 
             cmd = """
             INSERT INTO treino (exercicio, atv_peso, repeticoes, series, tempo, gasto_calorico, id_usuario)
             VALUES (%s, %s, %s, %s, %s, %s, %s)
             """
-            cursor.execute(cmd, (exercicio_nome, peso_exerc, repeticoes, series, f"00:{int(tempo_treino):02}:00", gasto_calorico, id_usuario))
+            cursor.execute(cmd, (exercicio_nome, peso_exerc, repeticoes, series, tempo_formatado, gasto_calorico, id_usuario))
             cnn.commit()
 
             treino_id = cursor.lastrowid
@@ -125,7 +156,9 @@ while True:
         else:
             print("Opção de exercício inválida.")
 
-    # OPÇÃO 2: Calcular IMC/TMB/Gasto calórico diário
+    # ========================
+    # OPÇÃO 2: IMC / TMB
+    # ========================
     elif opcao == "2":
         menu = input("Selecione uma das opções (IMC ou TMB): ").strip().upper()
         if menu == "IMC":
@@ -145,7 +178,7 @@ while True:
                 print('Você está com Obesidade Grau III.')
 
         elif menu == "TMB":
-            exerc_p_semana = int(input('Quantas vezes por semana você pratica exercícios físicos? '))
+            exerc_p_semana = int(input('\nQuantas vezes por semana você pratica exercícios físicos? '))
             if sexo == 'Masculino':
                 tmb = 66 + (13.7 * peso) + (5 * altura * 100) - (6.8 * idade)
             else:
@@ -166,9 +199,11 @@ while True:
         else:
             print("Opção inválida.")
 
-    # OPÇÃO 3: Mostrar últimos 5 exercícios
+    # ========================
+    # OPÇÃO 3: ÚLTIMOS EXERCÍCIOS
+    # ========================
     elif opcao == "3":
-        print("\n=== SEUS ÚLTIMOS EXERCÍCIOS ===")
+        print("\n=== SEUS ÚLTIMOS 10 EXERCÍCIOS ===")
         cmd = """
         SELECT 
             h.dia,
@@ -186,7 +221,7 @@ while True:
         LEFT JOIN atv_cardio c ON c.cardio_id = h.cardio_id
         WHERE h.id_usuario = %s
         ORDER BY h.dia DESC
-        LIMIT 5;
+        LIMIT 10;
         """
         cursor.execute(cmd, (id_usuario,))
         registros = cursor.fetchall()
@@ -196,8 +231,7 @@ while True:
         else:
             for row in registros:
                 dia = row[0]
-                # Musculação
-                if row[1] is not None:
+                if row[1] is not None:  # Musculação
                     print(f"""
 📌 {dia}
 💪 Musculação: {row[1]}
@@ -206,8 +240,7 @@ while True:
 • Séries: {row[4]}
 🔥 Gasto calórico: {row[5]:.2f} kcal
 ---------------------------------------------""")
-                # Cardio
-                else:
+                else:  # Cardio
                     print(f"""
 📌 {dia}
 🏃 Cardio: {row[6]}
@@ -216,13 +249,16 @@ while True:
 🔥 Gasto calórico: {row[9]:.2f} kcal
 ---------------------------------------------""")
 
-    # OPÇÃO 4: Sair
+    # ========================
+    # OPÇÃO 4: SAIR
+    # ========================
     elif opcao == "4":
         print("Finalizando Programa... 👋")
         break
 
     else:
         print("Opção inválida! Tente novamente.")
+
 # Fechando a conexão com o banco de dados
 cursor.close()
 cnn.close()
